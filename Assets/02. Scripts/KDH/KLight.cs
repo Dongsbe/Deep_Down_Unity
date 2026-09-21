@@ -12,25 +12,41 @@ public class KLight : MonoBehaviour {
 
     public GameObject GameMamager;
 
-    OpenDoorTrigger tile;
+    private Light stageClearLight;
+    private MeshRenderer lightOnRenderer;
+    private MeshRenderer lightOffRenderer;
+    private bool isStageClearApplied;
 
     // Use this for initialization
-    void Start () {
-        KDH_Light.GetComponent<Light>().enabled = false;
-        KDH_MeshRenderer.GetComponent<MeshRenderer>().enabled = false;
-        KDH_MeshRenderer2.GetComponent<MeshRenderer>().enabled = true;
+    void Start ()
+    {
+        stageClearLight = KDH_Light.GetComponent<Light>();
+        lightOnRenderer = KDH_MeshRenderer.GetComponent<MeshRenderer>();
+        lightOffRenderer = KDH_MeshRenderer2.GetComponent<MeshRenderer>();
+
+        ApplyLightState(false);
+        isStageClearApplied = false;
     }
 	
 	// Update is called once per frame
-	void Update () {
+    void Update ()
+    {
+        if (isStageClearApplied)
+            return;
 
         trues = GameControlManager.GetInstance().IsStageObjClear;
 
-        if (trues)
-        {
-            KDH_Light.GetComponent<Light>().enabled = true;
-            KDH_MeshRenderer.GetComponent<MeshRenderer>().enabled = true;
-            KDH_MeshRenderer2.GetComponent<MeshRenderer>().enabled = false;
-        }
+        if (!trues)
+            return;
+
+        ApplyLightState(true);
+        isStageClearApplied = true;
+    }
+
+    private void ApplyLightState(bool isOn)
+    {
+        stageClearLight.enabled = isOn;
+        lightOnRenderer.enabled = isOn;
+        lightOffRenderer.enabled = !isOn;
     }
 }

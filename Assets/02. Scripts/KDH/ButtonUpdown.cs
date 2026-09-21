@@ -18,11 +18,12 @@ public class ButtonUpdown : MonoBehaviour {
 
     public void isClick()
     {
-        if(isClickState)
-        {
-            iTween.MoveAdd(this.gameObject, iTween.Hash("y", -0.2f, "easeType", iTween.EaseType.linear, "speed", 50.0f));
-            StartCoroutine("ResetState");
-        }
+        if (!isClickState)
+            return;
+
+        isClickState = false;
+        iTween.MoveAdd(this.gameObject, iTween.Hash("y", -0.2f, "easeType", iTween.EaseType.linear, "speed", 50.0f));
+        StartCoroutine(ResetState());
 
     }
 

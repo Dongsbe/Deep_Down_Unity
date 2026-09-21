@@ -18,9 +18,7 @@ public class OpenLock : MonoBehaviour {
     public GameObject[] Number = new GameObject[3];
     LockNumber[] LockNum = new LockNumber[3];
 
-    private int[] SaveNum = new int[3];
     private int[] CheckNum = new int[3];
-    private bool[] trueNum = new bool[3];
     private Transform cPosition;
 
     // Use this for initialization
@@ -29,8 +27,6 @@ public class OpenLock : MonoBehaviour {
         {
             LockNum[i] = Number[i].GetComponent<LockNumber>();
             CheckNum[i] = LockNum[i].ReturnSuccNum();
-            trueNum[i] = false;
-            SaveNum[i] = -1;
         }
         LockViLo = LockView.GetComponent<ReturnViewLock>();
         MaLock = MLock.GetComponent<MainLock>();
@@ -44,35 +40,50 @@ public class OpenLock : MonoBehaviour {
         return isLockOpen;
     }
 
-    void Update () {
-        
+    void Update ()
+    {
+        if (isLockOpen || !IsCorrectCode())
+            return;
 
-        for (int i = 0; i < 3; i++)
+        Unlock();
+    }
+
+    private bool IsCorrectCode()
+    {
+        for (int i = 0; i < LockNum.Length; i++)
         {
-            SaveNum[i] = LockNum[i].ReturnNum();
-
-            if (SaveNum[i] == CheckNum[i])
-                trueNum[i] = true;
-            else
-                trueNum[i] = false;
+            if (LockNum[i].ReturnNum() != CheckNum[i])
+                return false;
         }
 
-        if (trueNum[0] && trueNum[1] && trueNum[2])
-        {
-            isLockOpen = true;
-            LockViLo.istrue = true;
-            MaLock.isOpen = true;
-            THindge.isOpen = true;
-        }
+        return true;
+    }
 
-        if(isLockOpen && cnt < 9)
+    private void Unlock()
+    {
+        isLockOpen = true;
+        LockViLo.istrue = true;
+        MaLock.isOpen = true;
+        THindge.isOpen = true;
+
+        GameControlManager.GetInstance().isLockOpen = true;
+        GameSoundManager.GetInstance().GetCharacterSound();
+        GameSoundManager.GetInstance().PlayObjectSound(ObjectSound.LockOpenSound);
+
+        StartCoroutine(OpenAnimation());
+    }
+
+    private IEnumerator OpenAnimation()
+    {
+        while (cnt < 9)
         {
             cnt++;
-            cPosition.localPosition = new Vector3(cPosition.localPosition.x, cPosition.localPosition.y, cPosition.localPosition.z + Time.deltaTime * speed);
+            cPosition.localPosition = new Vector3(
+                cPosition.localPosition.x,
+                cPosition.localPosition.y,
+                cPosition.localPosition.z + Time.deltaTime * speed);
 
-            GameControlManager.GetInstance().isLockOpen = true;
-            GameSoundManager.GetInstance().GetCharacterSound();
-            GameSoundManager.GetInstance().PlayObjectSound(ObjectSound.LockOpenSound);
+            yield return null;
         }
     }
 }
